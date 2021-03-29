@@ -1,0 +1,258 @@
+ method cambiarDeArma(){
+            if(armaPrimaria \= null){
+                if(armaActual == armaPrimaria)
+                    armaActual = armaSecundaria
+                else
+                    armaActual = armaPrimaria    
+            }
+        }*/
+
+method agarrarArma(unArma){
+        //game.onCollideDo(self, { visualColisionado => visualColisionado.chocasteConPersonaje()})
+        //armaSecundaria = unArma
+    }
+
+// para el patron de movimientos, puede ser q en vez de pasarle [derecha, derecha, derecha, derecha, arriba, arriba, arriba,], se le pase
+// [[derecha, 4], [arriba, 3]]. Si se puede hacer con duplas, como en funcional, mejor. 
+
+// hacer q en salirBala, ademas de hacer todo lo q hace tambien sume 1 a la distancia q alcanzo la vision, osea alcance++. Todo esto tiene q estar dentro del onTick
+
+
+PANTALLA INICIO:
+
+const musicaDeInicio = game.sound("musicaDeInicio.mp3")
+
+	method pantallaInicio() {
+	game.title("Save Stalin")
+	game.width(30)
+	game.height(30)
+	game.addVisual("fondoInicio.png")
+	//musicaDeInicio.play()
+	keyboard.enter().onPressDo({self.iniciar()})
+	game.start()
+}
+
+	method iniciar() {
+		game.clear()
+		//musicaDeInicio.pause()
+		self.configurarJuego()
+		self.agregarPersonajes()
+		self.configurarTeclas()
+		self.configurarAcciones()
+		mapa.generarMuros()
+		//self.dropearArmas()
+	}
+
+/*method dropearArmas(){
+	[new ArmaTirada(image = "ak47.png",position = game.at(8,8))].forEach({armatirada => game.addVisual(armatirada)})
+}*/
+
+	method configurarJuego() {
+	game.boardGround("Fondo.png")
+}
+
+Hacer una Celda
+
+/*object viejoPersonaje{
+
+    var property armaPrimaria = null  //se usa el property para los test
+    const armaSecundaria = pistola
+    //const armas = [pistola]
+    var property armaActual = armaSecundaria   //se usa el property para los test armas.first()
+	var position = game.at(2,3)
+	var direccion = derecha
+
+    // GETTER
+
+	method position() = position
+
+    method vida() = vidaPersonaje.vida()
+
+	method image() = direccion.imageDireccion("Survivor"+ armaActual.nombre())
+
+    method direccion() = direccion
+
+    method armaSecundaria() = armaSecundaria
+
+    // CONSULTAS
+
+    method puedeAvanzar() = game.getObjectsIn(direccion.posicionSiguiente(position)).all({obj => obj.esAtravesable()})
+
+    //ACCIONES
+
+    method avanzar(){
+		if(self.puedeAvanzar()) 
+            position = direccion.posicionSiguiente(position)
+	}
+
+    method moverse(nuevaDireccion){
+        direccion = nuevaDireccion
+        self.avanzar()
+    }
+
+    method apretarGatillo(){
+        if(armaActual.tieneMunicion()) self.disparar()
+		else self.armaSinMunicion()
+    }
+
+    method disparar(){
+        armaActual.restarMunicion()
+        const tiro = new Bala(
+                direccion = direccion,
+                position = direccion.posicionSiguiente(position),
+                damage = armaActual.damage())
+        const sonidoBala = game.sound("shot.mp3")
+        sonidoBala.play()
+        tiro.salirBala()
+    }
+
+     method recibirDisparo(unaBala){
+        vidaPersonaje.causarDanio(unaBala.damage())
+        unaBala.eliminar()
+    }
+
+    method armaSinMunicion(){
+        armaActual = armaSecundaria
+        armaPrimaria = null
+    }
+
+    method morir(){  
+        game.say(self,"Me muerooooo")
+        saveStalin.seTerminoElJuego(derrota)
+    }
+    
+    method chocarConStalin(){
+    	stalin.seguirAlPersonaje()
+    	//mapa.popZonaDeRescate()
+    }
+    
+   
+    method agarrar(){
+        game.getObjectsIn(position).forEach({obj => obj.serAgarrado()})
+    }
+
+    method serAgarrado(){}
+
+    method agarrarArma(unArma){
+    	const agarrar = game.sound("agarrarArma.mp3")
+    	agarrar.play()
+        armaPrimaria = unArma
+        armaActual = armaPrimaria
+    }
+
+    method cambiarDeArma(){
+        if(armaPrimaria != null){
+            if(armaActual == armaPrimaria) armaActual = armaSecundaria
+            else armaActual = armaPrimaria 
+        }
+    }
+
+    /*method cambiarDeArma2(){
+        armaActual = armas.armaSiguiente(armaActual)
+    }
+
+    method armaSiguiente(unArma){
+        const posicion = posicion del armaActual en la lista de armas
+        return el arma q esta en la posicion + 1 y si la posicion + 1 es mayor q el size.armas() entoces se devuelve el armas.first()
+    }
+    
+    // metodos agregados
+		
+}*/
+
+	
+	//EN UN FUTURO...
+	
+	
+	/*method cambiarDeArma2(){
+        armaActual = armas.armaSiguiente(armaActual)
+    }
+
+    method armaSiguiente(unArma){
+        const posicion = posicion del armaActual en la lista de armas
+        return el arma q esta en la posicion + 1 y si la posicion + 1 es mayor q el size.armas() entoces se devuelve el armas.first()
+    }*/
+}
+
+/*class ViejoEnemigo{
+    var property vida = 25
+	var property direccion = derecha
+	const direccionDeLaMira = abajo
+    const arma  = new AK47()
+    var  property position = game.at(2,2) 
+    
+	method image() = direccionDeLaMira.imageDireccion("Enemigo")
+
+    method arma() = arma
+
+    method disparar(){
+            const tiro = new Bala(
+                direccion = direccionDeLaMira,
+                position = direccionDeLaMira.posicionSiguiente(position),
+                damage = arma.damage())
+            tiro.salirBala()
+    }
+
+	method recibirDisparo(unaBala){
+        vida -= unaBala.damage()
+        unaBala.eliminar()
+        if(vida<=0) {
+            self.morir()
+	    }
+	}
+
+    method morir(){
+    	const enemigoMuere = game.sound("enemigoMuere.mp3")
+    	enemigoMuere.play()
+        game.removeVisual(self)
+        saveStalin.actualizarEnemigosVivos(self)
+    }
+	
+	method esAtravesable() = false
+
+    //method chocarConStalin(){}
+    
+    method noPuedeAvanzar() = not game.getObjectsIn(direccion.posicionSiguiente(position)).all({obj => obj.esAtravesable()})
+
+    method avanzar(){
+		if(self.noPuedeAvanzar()) direccion = direccion.direccionOpuesta()
+		position = direccion.posicionSiguiente(position)
+	}
+}*/
+
+QUE LAS ARMAS QUE ESTAN EN EL PISO GIREN
+
+// NO ME DEJA PONERLE VALORES INICIALES A LA AK47
+
+
+/*
+class AK47{
+  var property municion = 30 //se usa el property para los test
+  method damage() = 20
+
+  method nombre() = "ak47"
+
+  method restarMunicion(){
+      municion -= 1
+  }
+
+  method tieneMunicion() = municion > 0
+
+  method noTieneMunicion() = not self.tieneMunicion()
+
+  method imagen() = "ak47.png"
+  }
+  
+class Bazooka{
+  var municion = 4
+  method damage() = 9
+
+  method tieneMunicion() = municion > 0
+
+  method noTieneMunicion() = not self.tieneMunicion()
+
+  method imagen() = "bazooka.png"
+}*/
+
+
+  //const property arma = new Arma(nombre = "ak47", damage = 20, municion = 30) // property para los tests

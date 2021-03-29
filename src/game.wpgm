@@ -1,0 +1,6 @@
+import saveStalin.*
+
+program saveStalin{
+	saveStalin.menuInicio()
+}
+

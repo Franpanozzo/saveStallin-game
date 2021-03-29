@@ -1,0 +1,232 @@
+import wollok.game.*
+import personajes.*
+import movimientos.*
+import armas.*
+import saveStalin.*
+import mapa.*
+
+// hay q agregar los visual para que tengan posicion e imagen?
+describe "Moverse" {
+
+	const posicionInicial = personaje.position()
+
+	test "Si alguien se mueve, cambiara su direccion por la nueva direccion a la que se mueva y avanzara a la siguiente posicion en sentido a 
+	la direccion que posee. Tambien cambiara su imagen en base a su direccion" {
+		//se podria hacer q el test se ejecute ingresando la direccion por consola?
+		game.addVisual(personaje)
+		personaje.moverse(arriba)
+		assert.equals(arriba, personaje.direccion())
+		assert.equals(personaje.direccion().posicionSiguiente(posicionInicial), personaje.position())
+		assert.equals(arriba.imageDireccion("Survivor"+ personaje.arma().nombre()), personaje.image())
+	}
+
+	test "Si el personaje trata de moverse y se encuentra con un muro, no podra avanzar, solo cambiara su direccion y su imagen" {
+		const muro = new BloqueDeHierro (position = abajo.posicionSiguiente(posicionInicial))
+		//se podria hacer q el test se ejecute ingresando la direccion por consola?
+		game.addVisual(muro)
+		game.addVisual(personaje)
+		personaje.moverse(abajo)
+		assert.equals(muro.position(), abajo.posicionSiguiente(posicionInicial))
+		assert.equals(abajo, personaje.direccion())
+		assert.equals(posicionInicial, personaje.position())
+		assert.equals(abajo.imageDireccion("Survivor"+ personaje.arma().nombre()), personaje.image())
+	}	
+}
+
+
+describe "Disparar" {
+
+	//const enemigo = new Enemigo(direccion = abajo)
+	//const posicionDelPersonaje = personaje.position()
+	//const direccionDelPersonaje = personaje.direccion()
+	const ak47 = new AK47()
+
+	fixture{
+		game.addVisual(personaje)
+		personaje.armaPrimaria(ak47)
+	}
+
+	/*test "Cuando alguien dispara, se instancia una bala a un casillero de distancia del personaje y avanzara en una cierta direccion 
+	que es igual a la direccion que poseia el personaje a la hora de disparar" {
+		personaje.disparar()
+		const tiro = game.getObjectsIn(direccionDelPersonaje.posicionSiguiente(posicionDelPersonaje)).first()
+		assert.that(game.hasVisual(tiro))
+		assert.equals(direccionDelPersonaje, tiro.direccion())
+	}
+
+	test "Cuando el personaje aprieta el gatillo, teniendo municion en su arma (una AK47). Se restara municion al arma y disparar" {
+		personaje.cambiarDeArma()
+		const municionInicial = personaje.armaActual().municion()
+		personaje.apretarGatillo()
+		assert.equals(municionInicial - 1, personaje.armaActual().municion())
+		// como testeo que hay una nueva bala que tiene la direccion del personaje y se mueve en esa direccion?
+	}
+
+	test "Cuando el personaje aprieta el gatillo y su arma es la pistola. Solo disparara, ya que la pistola cuenta con muncion infinita" {
+		const municionInicial = personaje.armaActual().municion()
+		personaje.apretarGatillo()
+		assert.equals(municionInicial, personaje.armaActual().municion())
+		// como testeo que hay una nueva bala que tiene la direccion del personaje y se mueve en esa direccion?
+	}*/
+	
+	// ESTOS TRES TEST NO LOS PUEDO PROBAR PORQUE DISPARAR TIENE SONIDO
+	
+	test "Cuando el personaje aprieta el gatillo y no tiene municion en su arma. No disparara, en cambio, cambiara de arma y se 
+	deshara del arma sin balas" {
+		personaje.cambiarDeArma()
+		personaje.armaPrimaria().municion(0)
+		personaje.apretarGatillo()
+		assert.equals(personaje.armaSecundaria(), personaje.arma())
+		assert.equals(null, personaje.armaPrimaria())
+	}
+}
+
+
+describe "Recibir disparo y morir" {
+
+	const enemigo = new Enemigo(position = game.at(3,14),direccionDeLaMira = abajo, direccion = abajo)
+	const vidaIncialEnemigo = enemigo.vida()
+	const ak47 = new AK47()
+	const bala = new Bala(position = game.center(),damage = pistola.damage())
+	//const bala2 =  new Bala(position = game.center(),damage = pistola.damage())
+	const balaAK = new Bala(position = game.center(),damage = ak47.damage())
+	const columna = new Columna(position = game.center())
+
+	fixture{
+		game.addVisual(enemigo)
+		game.addVisual(bala)
+		game.addVisual(balaAK)
+		game.addVisual(columna)
+		game.addVisualIn(palanca,game.center())
+		//game.addVisual(bala2)
+	}
+
+	test "Si un enemigo recibe un tiro de una pistola, pierde 10 puntos de vida" {
+		enemigo.recibirDisparo(bala)
+		assert.equals(vidaIncialEnemigo - 10, enemigo.vida())
+	}
+	
+	test "Si un enemigo recibe un tiro de una ak47, pierde 20 puntos de vida" {
+		enemigo.recibirDisparo(balaAK)
+		assert.equals(vidaIncialEnemigo - 20, enemigo.vida())
+	}
+	
+	test "Si una columna recibe un tiro la bala desaparece" {
+		columna.recibirDisparo(bala)
+		assert.notThat(game.hasVisual(bala))
+	}
+	
+	
+	/* ESTE TEST NO SE PUEDE POR EL SONIDO 
+	test "Si la palanca recibe un disparo se destraba" {
+		palanca.recibirDisparo(bala)
+		assert.equals("PalancaDestrabada.png",palanca.image())
+	} */ 
+	
+
+	/*	test "Si un enemigo no recibe ningun tiro, no pierde vida" {
+		assert.equals(vidaIncialEnemigo,enemigo.vida())
+	}*/
+
+	/*test "Si el enemigo dos recibe 2 impactos uno con ak y otro con pistola, esta muerto" {
+		//el segundo tiro de la pistola no es necesario
+		enemigo.recibirDisparo(bala)
+		//enemigo.recibirDisparo(bala2)
+		enemigo.recibirDisparo(balaAK)
+		assert.equals(0,enemigo.vida()) 
+	}*/ // DICE QUE EL TEST NO PUEDE HACER SONIDOS, WAT
+	
+	/*test "Si el enemigo recibe un impacto con pistola, todavía no está muerto" {
+		enemigo.recibirDisparo(bala)
+		assert.that(game.hasVisual(enemigo))
+	}*/
+
+	// Me parece mal testear cosas q no pasan, como por ejemplo no morir o no perder vida
+	
+}
+
+
+describe "Rescatar" {
+
+	const movimientoInicialDeStalin = stalin.movimiento()
+	
+	fixture{
+		game.addVisual(stalin)
+		game.addVisual(personaje)
+	}
+	
+	test "Cuando el movimiento de Stalin es escapar, siempre estara pegado, por detras, al personaje" {
+		const posicionDelPersonaje = personaje.position()
+		const direccionDelPersonaje = personaje.direccion()
+		stalin.movimiento(escapar)
+		assert.equals(direccionDelPersonaje.direccionOpuesta().posicionSiguiente(posicionDelPersonaje), stalin.position())
+		assert.equals(direccionDelPersonaje, stalin.direccion())
+	}
+
+	test "Cuando el movimiento de Stalin es prisionero, se quedara en un lugar (no cambia ni su posicion ni su direccion) esperando a ser rescatado" {
+		stalin.movimiento(prisionero)
+		assert.equals(game.at(25,20), stalin.position())
+		assert.equals(derecha, stalin.direccion())
+	}
+	
+	test "Cuando el personaje se encuentra con Stalin, este pasa de ser prisionero a escapar junto al personaje" {
+		personaje.chocarConStalin()
+		assert.equals(prisionero, movimientoInicialDeStalin)
+		assert.equals(escapar, stalin.movimiento())
+	}
+	
+	/*test "Cuando Stalin llega a la zona de rescate, el juego termina ya que ganaste" {
+		zonaDeRescate.chocarConStalin()
+		// como testeo que se gano?
+	}*/
+}
+
+
+/*describe "Agarrar" {
+
+	const armaEnPiso = new ArmaEnElPiso(position = personaje.position())
+
+	fixture {
+		game.addVisual(personaje)
+	}
+	
+	
+	test "Personaje agarra un ak47 del piso, desaparece del piso y pasa a ser el armaActual y cambia de imagen" {
+		armaEnPiso.serAgarrado()
+		assert.notThat(game.hasVisual(armaEnPiso))
+		assert.equals(personaje.armaActual(),armaEnPiso.arma())
+		assert.equals(personaje.direccion().imageDireccion("Survivor"+ armaEnPiso.arma().nombre()),personaje.image())
+	}
+	
+	
+}*/
+
+
+describe "Cambiar arma"{
+
+	const armaInicial = personaje.arma()
+	const imagenInicial = personaje.image()
+
+	
+	test "Si el personaje cambia de arma y solo posee un arma (el arma secundaria, la pistola), su arma actual seguira siendo la misma" {
+		const armaNoSeleccionada = personaje.armaPrimaria()		
+		personaje.cambiarDeArma()
+		assert.that(armaNoSeleccionada == null)
+		assert.equals(armaInicial, personaje.arma())
+		assert.equals(imagenInicial, personaje.image())
+	}
+	
+	test "Si el personaje cambia de arma y posee dos armas, su arma actual sera el arma que no tenia seleccionada. Tambien cambiara su imagen" {
+		personaje.armaPrimaria(new AK47())
+		const armaNoSeleccionada = personaje.armaPrimaria()
+		//const nuevaImagen = personaje.image()	
+		personaje.cambiarDeArma()
+		assert.notThat(armaInicial == armaNoSeleccionada)
+		assert.notThat(imagenInicial == personaje.image())
+		assert.equals(armaNoSeleccionada, personaje.arma())
+		assert.equals(personaje.direccion().imageDireccion("Survivor"+ armaNoSeleccionada.nombre()), personaje.image())
+	}
+	
+}
+
+	
